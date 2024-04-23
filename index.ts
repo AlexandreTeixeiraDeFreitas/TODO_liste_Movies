@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import dotenv from "dotenv";
-
+// import global from "./src/types/types";
 import mongoose from "mongoose";
 import routes from './src/routes/indexRoutes';
 

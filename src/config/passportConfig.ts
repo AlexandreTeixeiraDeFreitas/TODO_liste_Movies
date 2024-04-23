@@ -29,22 +29,57 @@ passport.use('jwt-user', new JWTStrategy({
   secretOrKey: process.env.KEY || 'dhdzaKBFBQSJKFB/LQRNEKIL'
 }, async (jwtPayload, done) => {
   try {
-    const user = await Models.User.findOne({ email: jwtPayload.usernameField });
-    console.log(user);
+    const user = await Models.User.findOne({ email: jwtPayload.email });
+    console.log(jwtPayload);
     if (!user) {
         return done(null, false, { message: 'User not found.' });
       }
-      
-      // jwtPayload.password devrait être le mot de passe en clair pour comparaison
-      const isMatch = await user.comparePassword(jwtPayload.passwordField);
-      if (!isMatch) {
-        return done(null, false, { message: 'Password is incorrect.' });
+      if (user.role !== 'user' && user.role !== 'admin' ) {
+        return done(null, false, { message: 'Not authorized.' });
       }
-  
       return done(null, user);
     } catch (error) {
       return done(error);
     }
 }));
+
+// JWT Strategy
+passport.use('jwt-user?', new JWTStrategy({
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: process.env.KEY || 'dhdzaKBFBQSJKFB/LQRNEKIL'
+  }, async (jwtPayload, done) => {
+    try {
+      console.log('jwtPayload: '+jwtPayload);
+      const user = await Models.User.findOne({ email: jwtPayload.email });
+      if (!user) {  
+          return done(null, 'false');
+        }
+        if (user.role !== 'user' && user.role !== 'admin' ) {
+          return done(null, 'false');
+        }
+        return done(null, user);
+      } catch (error) {
+        return done(null, 'false');
+      }
+  }));
+
+passport.use('jwt-admin', new JWTStrategy({
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: process.env.KEY || 'dhdzaKBFBQSJKFB/LQRNEKIL'
+  }, async (jwtPayload, done) => {
+    try {
+      const user = await Models.User.findOne({ email: jwtPayload.email });
+      console.log('jwtPayload: '+jwtPayload);
+      if (!user) {
+          return done(null, false, { message: 'User not found.' });
+        }
+        if (user.role !== 'admin' ) {
+          return done(null, false, { message: 'Not authorized.' });
+        } 
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+  }));
 
 export default passport;

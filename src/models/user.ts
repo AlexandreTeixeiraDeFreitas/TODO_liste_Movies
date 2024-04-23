@@ -5,6 +5,7 @@ interface IUser extends Document {
   username: string;
   email: string;
   password: string;
+  role: string;
   comparePassword: (candidatePassword: string) => Promise<boolean>;
   createdAt: Date;
   updatedAt: Date;
@@ -14,6 +15,7 @@ const userSchema: Schema = new Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  role: { type: String, required: true, enum: ['admin', 'user'] }, // Définir les rôles possibles
 }, {
   timestamps: true,  // Ajoute automatiquement les propriétés createdAt et updatedAt
 });
