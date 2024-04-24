@@ -2,6 +2,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
 import Models from '../models/indexModels';
+import User from '../models/indexModels';
 
 // Local Strategy
 passport.use(new LocalStrategy({
@@ -37,6 +38,7 @@ passport.use('jwt-user', new JWTStrategy({
       if (user.role !== 'user' && user.role !== 'admin' ) {
         return done(null, false, { message: 'Not authorized.' });
       }
+      
       return done(null, user);
     } catch (error) {
       return done(error);
@@ -51,6 +53,7 @@ passport.use('jwt-user?', new JWTStrategy({
     try {
       console.log('jwtPayload: '+jwtPayload);
       const user = await Models.User.findOne({ email: jwtPayload.email });
+      console.log('user:'+user);
       if (!user) {  
           return done(null, 'false');
         }

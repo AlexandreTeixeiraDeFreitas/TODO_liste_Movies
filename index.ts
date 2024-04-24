@@ -11,10 +11,12 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 const app = express();
 app.use(express.json());
 
-// Remplacez 'your_mongodb_uri' par votre URI de connexion MongoDB
+const mongodbUri = process.env.MONGODB_URI;
+console.log(mongodbUri);
+
 mongoose
   .connect(
-    "mongodb+srv://atdf2002:Bouboule2323@cluster0.rquz93z.mongodb.net/trello?retryWrites=true&w=majority",
+    `${mongodbUri}`,
   )
   .then(() => {
     console.log("Connected to MongoDB");
@@ -41,6 +43,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/users', routes.userRoutes);
+app.use('/api/movies', routes.movieRoutes);
 
 app.use((req, res) => {
   res.status(404).send("404 NOT FOUND");

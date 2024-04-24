@@ -33,13 +33,19 @@ export class UserController {
 static async createUser(req: Request, res: Response) {
     try {
         const { email, role } = req.body;
-        console.log(req.user);
+        console.log('user:'+req.user);
         
-        if (req.user !== 'false') {
-        const requester = req.user;
-        const requesterRole = req.user?.role;
-
-        // Vérifier si l'utilisateur existant veut créer un admin
+        if (req.user !== 'false' && req.user) {
+          console.log('passe'+req.user);
+          
+            const requester = await Models.User.findById(req.user);
+            if (!requester) {
+              return res.status(403).send({ message: "Unauthorized: Only admins can create admin accounts (requester)." });
+            }
+            const requesterRole = requester.role;
+            console.log(role+' '+requesterRole);
+        
+            // Vérifier si l'utilisateur existant veut créer un admin
             if (role === 'admin' && requesterRole !== 'admin') {
                 return res.status(403).send({ message: "Unauthorized: Only admins can create admin accounts." });
             }
@@ -63,8 +69,44 @@ static async createUser(req: Request, res: Response) {
 
   static async getUser(req: Request, res: Response) {
     try {
-      const user = req.user;
+      if (!req.user) {
+        return res.status(404).send({ success: false, message: "The user with the given ID was not found." });
+      }
+      const user = await Models.User.findById(req.user);
+      if (!user) {
+        return res.status(404).send({ success: false, message: "The user with the given ID was not found." });
+      }
       res.send(user);
+    } catch (error: any) {
+      res.status(500).send({ success: false, message: error.message || "An unknown error occurred" });
+    }
+  }
+
+  static async updateUser(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(404).send({ success: false, message: "The user with the given ID was not found." });
+      }
+      const user = await Models.User.findByIdAndUpdate(req.user);
+      if (!user) {
+        return res.status(404).send({ success: false, message: "The user with the given ID was not found." });
+      }
+      res.send(user);
+    } catch (error: any) {
+      res.status(500).send({ success: false, message: error.message || "An unknown error occurred" });
+    }
+  }
+
+  static async deleteUser(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(404).send({ success: false, message: "The user with the given ID was not found." });
+      }
+      const user = await Models.User.findByIdAndDelete(req.user);
+      if (!user) {
+        return res.status(404).send({ success: false, message: "The user with the given ID was not found." });
+      }
+      res.send({ success: true, message: "User deleted successfully" });
     } catch (error: any) {
       res.status(500).send({ success: false, message: error.message || "An unknown error occurred" });
     }
@@ -93,7 +135,7 @@ static async createUser(req: Request, res: Response) {
     }
   }
 
-  static async updateUser(req: Request, res: Response) {
+  static async updateUserById(req: Request, res: Response) {
     try {
       const user = await Models.User.findByIdAndUpdate(req.params.id, req.body, { new: true });
       if (!user) {
@@ -105,7 +147,7 @@ static async createUser(req: Request, res: Response) {
     }
   }
 
-  static async deleteUser(req: Request, res: Response) {
+  static async deleteUserById(req: Request, res: Response) {
     try {
       const user = await Models.User.findByIdAndDelete(req.params.id);
       if (!user) {

@@ -1,10 +1,10 @@
 import 'express';
-import { IUser } from '../models/user';  // Assurez-vous que le chemin est correct
+import { IUser } from '../models/user';
 
 declare global {
   namespace Express {
-    interface Request {
-      user?: IUser;
+    export interface Request {
+      user: IUser;
     }
   }
 }

@@ -1,7 +1,10 @@
 import userRoutes from "./userRoutes";
-// import passport from "./passportRoutes";
+import productRoutes from "./productRoutes";
+import movieRoutes from "./movieRoutes";
+
 
 export default {
     userRoutes,
-    // passport,
+    productRoutes,
+    movieRoutes,
   };
